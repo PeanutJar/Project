@@ -16,6 +16,14 @@ function eventWindowLoaded() {
 }
   //"canvasApp" is the main function
 function canvasApp(){
+  let Person = 0
+  $.get("/getID", setID);
+
+  function setID(data)
+  {
+    Person = (parseInt(data.id))%2
+    return
+  }
 
 
    var theCanvas = document.getElementById("canvas");
@@ -128,8 +136,25 @@ theCanvas.addEventListener("click",onMouseClick,false);
           {
             if(mouseX < LocalPieceArray[i].XVALUE + ((scale*10)/2) && mouseX > LocalPieceArray[i].XVALUE - ((scale*10)/2) && mouseY < LocalPieceArray[i].YVALUE + ((scale*10)/2) && mouseY > LocalPieceArray[i].YVALUE - ((scale*10)/2))
             {
-              UniversalPointer = LocalPieceArray[i]
-              pieceMove = true    
+              if(Person == 0)
+              {
+                if(LocalPieceArray[i].Color == '#00FF00')
+                {
+                  UniversalPointer = LocalPieceArray[i]
+                  pieceMove = true  
+                  return 
+                }
+              }
+              else if(Person == 1)
+              {
+                if(LocalPieceArray[i].Color == '#FFFFFF')
+                {
+                  UniversalPointer = LocalPieceArray[i]
+                  pieceMove = true  
+                  return 
+                }
+              }
+                
               return          
               //alert("piece clicked")
               //LocalPieceArray[i].Color = '#808080'
