@@ -12,8 +12,6 @@ router.get("/",function(req,res){
     res.sendFile(path.resolve(__dirname + "/public/views/index.html"));  //changed
 });
 
-let Person = 0
-
 const board = []
 board.length = 8
 
@@ -97,12 +95,6 @@ for (let key in used) {
 */
 //console.log(board)
 //console.log(Pieces)
-
-router.get('/getID', function(req, res){
-  let num = Person
-  Person++
-  res.json({id : num});
-});
 
 router.get('/recieve', function(req, res){
 //console.log(board)
