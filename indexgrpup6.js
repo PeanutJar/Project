@@ -13,7 +13,7 @@ app.use(express.static('./public'));
 
 app.use(routes);
 
-var port = process.env.PORT || 3006;
+var port = process.env.PORT || 3007;
 app.listen(port);
 
 /*
