@@ -5,9 +5,21 @@
 <head>
 <meta charset="UTF-8">
 <title>Canvas Basic Game Template</title>
+<script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/jquery-3.1.1.min.js">
 </script>  
 <script type="text/javascript">
+
+
+  var socket = io()
+  testing()
+  function testing() {
+    let testnum = 0
+    socket.emit('posttest');
+    socket.emit("testnum", {number: testnum})
+    //alert("yummy")
+  }
+      
 
 window.addEventListener('load', eventWindowLoaded, false);
 
@@ -53,7 +65,38 @@ theCanvas.addEventListener("click",onMouseClick,false);
    var click = false;
    var pieceMove = false
    let UniversalPointer = null
-   let Person1turn = true
+   let Person1turn
+   //for some reason, the Person1Turn is only actually updated once someone else joins mid-match, maybe is is some bug also related to pieces not being updated on first turns?
+   //alert("david")
+   /*
+   socket.on('getturn', (elem1) => {
+    Person1turn = elem1
+    alert(Person1turn + " Hey there!")
+  });
+  */
+  
+   socket.emit('getturn');
+
+   socket.on('getturn', (elem1) => {
+      Person1turn = elem1
+      if(Person1turn)//have no idea why, but this alert allows the game to function properly
+      {
+        alert("Green goes!")
+      }
+      else if(!Person1turn)
+      {
+        alert("White goes!")
+      }
+   });
+   
+  
+  /*
+   socket.emit("getturn",(response) => {
+    Person1turn = response.status
+    alert(response.status); // ok
+  });
+  */
+
 
    let firstTime
 
@@ -69,7 +112,21 @@ theCanvas.addEventListener("click",onMouseClick,false);
    LocalPieceArray.length = 24
 
    //let ate = 0
+   let Indentification = 0
    //var displayer;
+
+      //need to test with other computers in a bit
+      socket.on('getid', (elem1) => {
+        //alert(typeof elem1)
+        let daNum = (elem1%2)
+        Indentification = daNum
+          //alert(elem1);
+          //alert(daNum)
+          alert(Indentification + " is the id")
+        });
+
+   //alert(Indentification + " + 1 is the client id")
+
 
    gameLoop();
 
@@ -96,6 +153,31 @@ theCanvas.addEventListener("click",onMouseClick,false);
    */
 
 ///////////////////////////////////////////////////////
+/* //*note* this does work
+  function useSocket (info) {
+    if(info == "piecemove")
+    {
+      //alert("hey there")
+      socket.on('piecemove', (elem1) => {
+        alert("complete moved")
+        Data(elem1)
+      });
+    }
+    else if(info == "piecedelete")
+    {
+      socket.on('piecedelete', (elem1) => {
+        alert("complete deleted")
+        Data(elem1)
+      });
+    }
+  }
+  */
+
+  socket.on('piecemove', (elem1) => {
+    Data(elem1)
+  });
+
+
    function onMouseMove(e)
    {
         //mouseX = e.clientX - theCanvas.offsetLeft;
@@ -105,6 +187,9 @@ theCanvas.addEventListener("click",onMouseClick,false);
    }
    function onMouseClick(e)
    {
+    //socket.emit('getturn');
+    //socket.emit('mouseclick',{number : david}); //this works
+
         //click = !click; //every other click, click is true
         click = true
 
@@ -130,7 +215,7 @@ theCanvas.addEventListener("click",onMouseClick,false);
             {
               UniversalPointer = LocalPieceArray[i]
               pieceMove = true  
-              return 
+              return
          
               //alert("piece clicked")
               //LocalPieceArray[i].Color = '#808080'
@@ -175,41 +260,51 @@ theCanvas.addEventListener("click",onMouseClick,false);
                 let placeX3 = (xval+((pt.Column + w)*(scale*10))) + ((scale*10)/2)
                 let placeY3 = (yval+((pt.Row + upordown)*(scale*10))) + ((scale*10)/2)
 
-                let placeX4 = (xval+((pt.Column - w)*(scale*10))) + ((scale*10)/2)
-                let placeY4 = (yval+((pt.Row - upordown)*(scale*10))) + ((scale*10)/2)
+                //let placeX4 = (xval+((pt.Column - w)*(scale*10))) + ((scale*10)/2)
+                //let placeY4 = (yval+((pt.Row - upordown)*(scale*10))) + ((scale*10)/2)
 
                 if(mouseX < placeX3 + (((scale*10)/2)) && mouseX > placeX3 - (((scale*10)/2)) && mouseY < placeY3 + (((scale*10)/2)) && mouseY > placeY3 - (((scale*10)/2)))
                 {
+                  //alert(!Person1turn + " is the opposite")
+                  //alert(typeof Person1turn)
                   //alert("w = " + w + " and upordown = " + upordown)
                   //else
                   {
                     if(LocalBoardArray[pt.Column + w][pt.Row + upordown].Status == null)
                     {
-                      if(Person1turn && pt.Color == '#00FF00' && pt.Type == "king")
+                      if(Indentification == 0 && Person1turn && pt.Color == '#00FF00' && pt.Type == "king")
                       {
                         //alert("hi")
-                        Person1turn = false
+                        //Person1turn = false
+                        //alert(Person1turn + " player's 2 turn is next")
                         pieceMove = false
                         UniversalPointer = null
                         let hurr = JSON.stringify(pt)
-                        $.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: "king"},Data);
+                        socket.emit('piecemove',{IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: "king"});
+
+                        //$.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: "king"},Data);
                         //paint()
                         return
                       }
-                      else if(!Person1turn && pt.Color == '#FFFFFF' && pt.Type == "king")
+                      else if(Indentification == 1 && !Person1turn && pt.Color == '#FFFFFF' && pt.Type == "king")
                       {
                         //alert("hi2")
-                        Person1turn = false
+                        //Person1turn = false
+                        //alert(Person1turn + " player's 1 turn is next")
                         pieceMove = false
                         UniversalPointer = null
                         let hurr = JSON.stringify(pt)
-                        $.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: "king"},Data);
+
+                        socket.emit('piecemove',{IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: "king"});
+
+                        //$.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: "king"},Data);
                         //paint()
                         return
                       }
-                      else if(Person1turn && pt.Color == '#00FF00')
+                      else if(Indentification == 0 && Person1turn && pt.Color == '#00FF00')
                       {
-                        Person1turn = false
+                        //Person1turn = false
+                        //alert(Person1turn + " player's 2 turn is next")
                         pieceMove = false
                         UniversalPointer = null
                         let hurr = JSON.stringify(pt)
@@ -218,13 +313,21 @@ theCanvas.addEventListener("click",onMouseClick,false);
                         {
                           barcle = "king"
                         }
-                        $.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: barcle},Data);
+
+                        //socket.on('connect', () => {
+                          //the first moves don't seem to connect/update with other clients (maybe because of how the "every other turn" thing is set up) (or maybe try doing a check-up when the client first loads in) (it currently works if each person plays the game by placing green on their side, then white, etc.)(maybe do it based on user id) (or use io.emit instead of socket)
+                          socket.emit('piecemove',{IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: barcle});
+
+                         //});
+
+                        //$.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: barcle},Data);
                         //paint()
                         return
                       }
-                      else if(!Person1turn && pt.Color == '#FFFFFF')
+                      else if(Indentification == 1 && !Person1turn && pt.Color == '#FFFFFF')
                       {
-                        Person1turn = true
+                        //Person1turn = true
+                        //alert(Person1turn + " player's 1 turn is next")
                         pieceMove = false
                         UniversalPointer = null
                         let hurr = JSON.stringify(pt)
@@ -233,7 +336,10 @@ theCanvas.addEventListener("click",onMouseClick,false);
                         {
                           barcle = "king"
                         }
-                        $.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: barcle},Data);
+
+                        socket.emit('piecemove',{IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: barcle});
+
+                        //$.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: barcle},Data);
                         //paint()
                         return
                       }
@@ -241,7 +347,7 @@ theCanvas.addEventListener("click",onMouseClick,false);
                     else if(LocalBoardArray[pt.Column + w][pt.Row + upordown].Status != null)
                     {
                       //alert("is here")
-                      if(Person1turn && pt.Color == '#00FF00')
+                      if(Indentification == 0 && Person1turn && pt.Color == '#00FF00')
                       {
                         let num1 = parseInt(pt.Column + w)
                         let num2 = parseInt(pt.Row + upordown)
@@ -261,11 +367,18 @@ theCanvas.addEventListener("click",onMouseClick,false);
                           {
                             //alert("yooooo")
 
-                            Person1turn = false
+                            //Person1turn = false
+                            alert(Person1turn + " player's 2 turn is next")
                             pieceMove = false
                             UniversalPointer = null
 
-                             $.post("/outofbounds", {IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id},Data);
+                            socket.emit('piecedelete',{IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id});
+                                //////////does not call socket.on
+                            socket.on('piecedelete', (elem1) => {
+                              Data(elem1)
+                            });
+
+                             //$.post("/outofbounds", {IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id},Data);
 
                             if(num4 == 0 || num2 == 0 || num2 == 7 || pt.Type == "king")
                             {
@@ -276,11 +389,15 @@ theCanvas.addEventListener("click",onMouseClick,false);
                               {
                                 number = 1
                               }
-                               $.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : (w*number), Rownew : (upordown*number), index: pt.id, type: "king"},Data);
+                                socket.emit('piecemove',{IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w*number, Rownew : upordown*number, index: pt.id, type: "king"});
+
+                               //$.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : (w*number), Rownew : (upordown*number), index: pt.id, type: "king"},Data);
                             }
                             else
                             {
-                              $.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : (w*2), Rownew : (upordown*2), index: pt.id, type: "normal"},Data);
+                              socket.emit('piecemove',{IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w*2, Rownew : upordown*2, index: pt.id, type: "normal"});
+
+                              //$.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : (w*2), Rownew : (upordown*2), index: pt.id, type: "normal"},Data);
                             }
 
                             //paint()
@@ -288,7 +405,7 @@ theCanvas.addEventListener("click",onMouseClick,false);
                           }
                         }
                       }
-                      else if(!Person1turn && pt.Color == '#FFFFFF')
+                      else if(Indentification == 1 && !Person1turn && pt.Color == '#FFFFFF')
                       {
                         let num1 = parseInt(pt.Column + w)
                         let num2 = parseInt(pt.Row + upordown)
@@ -305,12 +422,21 @@ theCanvas.addEventListener("click",onMouseClick,false);
                           {
                             //alert("yooooo2")
 
-                            Person1turn = true
+                            //Person1turn = true
+                            //alert(Person1turn + " player's 1 turn is next")
                             pieceMove = false
                             UniversalPointer = null
 
-                            //we are only making the board where the piece removed null, not also where the piece left
-                             $.post("/outofbounds", {IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id},Data);
+                            socket.emit('piecedelete',{IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id});
+
+
+                            socket.on('piecedelete', (elem1) => {
+                              Data(elem1)
+                            });
+
+
+
+                             //$.post("/outofbounds", {IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id},Data);
 
                              //this shoudl update the piece being moved
                             if(num4 == 7 || num2 == 0 || num2 == 7 || pt.Type == "king")
@@ -319,11 +445,15 @@ theCanvas.addEventListener("click",onMouseClick,false);
                               {
                                 number = 1
                               }
-                               $.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : (w*number), Rownew : (upordown*number), index: pt.id, type: "king"},Data);
+                              socket.emit('piecemove',{IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w*number, Rownew : upordown*number, index: pt.id, type: "king"});
+
+                               //$.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : (w*number), Rownew : (upordown*number), index: pt.id, type: "king"},Data);
                             }
                             else
                             {
-                              $.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : (w*2), Rownew : (upordown*2), index: pt.id, type: "normal"},Data);
+                              socket.emit('piecemove',{IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w*2, Rownew : upordown*2, index: pt.id, type: "normal"});
+
+                              //$.post("/update", {IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : (w*2), Rownew : (upordown*2), index: pt.id, type: "normal"},Data);
                             }
 
                             //paint()
@@ -360,6 +490,23 @@ theCanvas.addEventListener("click",onMouseClick,false);
    }
 
    function Data(info) {
+    /*
+      socket.on('getturn', (elem1) => {
+        Person1turn = elem1
+        alert(Person1turn)
+      });
+      */
+
+     if(info != null && info.TURN != null)
+     {
+      //now updates for both, but currently cannot fix update on first move
+      Person1turn = info.TURN
+      socket.emit('getturn');
+      //alert(typeof info.TURN)
+      //alert(info.TURN)
+     } 
+
+
       let xval = innerWidth * (1/3)
       let yval = innerHeight * (1/9)
 
@@ -440,7 +587,14 @@ theCanvas.addEventListener("click",onMouseClick,false);
 
           //by default all areas of the board have an empty status, so this code here (once the pieces are all displayed) updates the board, so the indexes of the board (with pieces on them) will not have an empty status (this is *only* done here so we don't have to manually set certain board indexes to not be empty)
           let hurr = JSON.stringify(LocalPieceArray[i])
-          $.post("/request", {IsHere: hurr, COL: info.PIECE[i].COL, ROW: info.PIECE[i].ROW},Data);
+
+          socket.emit('request',{IsHere: hurr, COL: info.PIECE[i].COL, ROW: info.PIECE[i].ROW});
+        
+          socket.on('request', (elem1) => {
+            Data(elem1)
+          });
+
+          //$.post("/request", {IsHere: hurr, COL: info.PIECE[i].COL, ROW: info.PIECE[i].ROW},Data);
           //return
         }
       }
@@ -464,7 +618,13 @@ theCanvas.addEventListener("click",onMouseClick,false);
    if(firstTime == undefined) {
         // first time code goes here
         firstTime = "TurkeyTime"; //do the initialisation
-        $.get("/recieve", Data);
+        socket.emit('recieve');
+
+        socket.on('recieve', (elem1) => {
+          //alert(JSON.stringify(elem1))
+          Data(elem1)
+       });
+        //$.get("/recieve", Data);
         return false
     }
 
@@ -494,7 +654,7 @@ theCanvas.addEventListener("click",onMouseClick,false);
     {
       if(LocalBoardArray[i][j] == undefined)
       {
-        alert("LocalBoardArray index" + i + " === " + j +  " is undefined!")
+        //alert("LocalBoardArray index" + i + " === " + j +  " is undefined!")
         return false
       }
      
@@ -529,7 +689,7 @@ theCanvas.addEventListener("click",onMouseClick,false);
   {
       if(LocalPieceArray[ate] == undefined)
       {
-        alert("LocalPieceArray index " + ate + " is undefined!")
+        //alert("LocalPieceArray index " + ate + " is undefined!")
         return false
       }
 

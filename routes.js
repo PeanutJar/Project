@@ -8,6 +8,9 @@ var app = express();
 
 let router = express.Router();
 
+//var http = require("http").Server(app)
+//var io require("socket.io")(http)
+
 router.get("/",function(req,res){
     res.sendFile(path.resolve(__dirname + "/public/views/index.html"));  //changed
 });
@@ -18,6 +21,8 @@ board.length = 8
 const Pieces = []
 Pieces.length = 24
 let dingo = 0
+
+let Person1Turn = true
 
 //const LoserPieces = []
 //LoserPieces.length = 24
@@ -162,5 +167,137 @@ Pieces[req.body.index].ROW = null
 });
 
 
+module.exports = function(io) {
+    // define routes
+    // io is available in this scope
+    router.get("io")
 
-module.exports = router;
+let m = 0;
+let idnum = -1
+
+
+    io.on('connection', function(socket) {
+      //console.log(socket.id)
+      idnum++
+      console.log("client id = " + idnum)
+
+    // Use socket to communicate with this particular client only, sending it it's own id
+    socket.emit('welcome', { identifier: 1 });
+//////////////////////////////////////////////
+    socket.on('posttest', function(req, res){
+    console.log("test complete!");
+    io.emit('posttest',{error:false})
+    //res.json({error:false});
+    });
+//////////////////////////////////////////////
+    socket.on("testnum",function(data) {
+      console.log(data.number)
+      io.emit('testnum',{error:false})
+    })
+//////////////////////////////////////////////
+    socket.on('piecemove', function(data){
+
+      let num1 = parseInt(data.COL)
+      let num3 = parseInt(data.Colnew)
+      let num4 = num1 + num3
+
+      let num2 = parseInt(data.ROW)
+      let num5 = parseInt(data.Rownew)
+      let num6 = num2 + num5
+
+      board[num4][num6].STAT = JSON.parse(data.IsHere)
+      board[data.COL][data.ROW].STAT = null
+      Pieces[data.index].COL = num4
+      Pieces[data.index].ROW = num6
+
+      Pieces[data.index].TYPE = data.type
+
+      Person1Turn = !Person1Turn
+
+      console.log("hi :)")
+      console.log(Person1Turn)
+      //now it updates for the other people, not not the person sent
+      io.emit("piecemove",{PIECE:Pieces,BOARD:board,UMidk: "questionmark",TURN: Person1Turn})
+      //console.log("naaaah")
+    });
+
+    //io.emit("piecemove",{PIECE:Pieces,BOARD:board,UMidk: "questionmark",TURN: Person1Turn})
+//////////////////////////////////////////////
+    socket.on('request', function(data){
+      let object = JSON.parse(data.IsHere) 
+
+      board[data.COL][data.ROW].STAT = object
+
+      io.emit("request",{PIECE:Pieces,BOARD:board,UMidk: "questionmark"});
+    })
+
+    //io.emit("request",{PIECE:Pieces,BOARD:board,UMidk: "questionmark"});
+//////////////////////////////////////////////
+    socket.emit("getid",idnum)
+//////////////////////////////////////////////
+
+    socket.on('getturn', function(data){
+      console.log("getturn is " + Person1Turn)
+      io.emit('getturn',Person1Turn);
+    });
+    
+
+    //io.emit("getturn", Person1Turn)
+
+/*
+    socket.on("getturn",(callback) => {
+      callback({
+        status: Person1Turn
+      })
+    })
+    */
+//////////////////////////////////////////////
+    socket.on('recieve', function(data){
+
+      io.emit('recieve',{PIECE:Pieces,BOARD:board});
+    });
+
+    //io.emit('recieve',{PIECE:Pieces,BOARD:board});
+//////////////////////////////////////////////
+
+    socket.on('piecedelete', function(data){
+      board[data.CoL][data.ROW].STAT = null
+      //console.log(req.body.index)
+      //if(Pieces[req.body.index].COL != null || Pieces[req.body.index].COL != undefined)
+      {
+        Pieces[data.index].COL = null
+        Pieces[data.index].ROW = null
+      }
+        console.log("hello")
+        //console.log(Pieces)
+        io.emit('piecedelete',{error:false});
+    });
+
+    //io.emit("piecedelete",{PIECE:Pieces,BOARD:board,UMidk: "questionmark"})
+
+/////////////////////////////////////////////////////////
+    socket.on('mouseclick', function(data){
+      m = parseInt(data.number) + 1
+      console.log(m);
+      //socket.emit('mouseclick',m)
+    });
+   
+   /*
+   socket.on("greetings2",function(data) {
+    console.log("hello there")
+      socket.emit('greetings2', 'Hey!')
+    })
+    */
+
+   //socket.emit('greetings2', 'Hey!');
+
+});
+
+
+    return router;
+}
+
+
+
+
+//module.exports = router;
