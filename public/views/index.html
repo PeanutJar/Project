@@ -177,6 +177,10 @@ theCanvas.addEventListener("click",onMouseClick,false);
     Data(elem1)
   });
 
+  socket.on('piecedelete', (elem1) => {
+    Data(elem1)
+  });
+
 
    function onMouseMove(e)
    {
@@ -315,7 +319,7 @@ theCanvas.addEventListener("click",onMouseClick,false);
                         }
 
                         //socket.on('connect', () => {
-                          //the first moves don't seem to connect/update with other clients (maybe because of how the "every other turn" thing is set up) (or maybe try doing a check-up when the client first loads in) (it currently works if each person plays the game by placing green on their side, then white, etc.)(maybe do it based on user id) (or use io.emit instead of socket)
+
                           socket.emit('piecemove',{IsHere: hurr, COL: pt.Column, ROW: pt.Row, Colnew : w, Rownew : upordown, index: pt.id, type: barcle});
 
                          //});
@@ -368,15 +372,11 @@ theCanvas.addEventListener("click",onMouseClick,false);
                             //alert("yooooo")
 
                             //Person1turn = false
-                            alert(Person1turn + " player's 2 turn is next")
+                            //alert(Person1turn + " player's 2 turn is next")
                             pieceMove = false
                             UniversalPointer = null
 
                             socket.emit('piecedelete',{IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id});
-                                //////////does not call socket.on
-                            socket.on('piecedelete', (elem1) => {
-                              Data(elem1)
-                            });
 
                              //$.post("/outofbounds", {IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id},Data);
 
@@ -428,13 +428,6 @@ theCanvas.addEventListener("click",onMouseClick,false);
                             UniversalPointer = null
 
                             socket.emit('piecedelete',{IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id});
-
-
-                            socket.on('piecedelete', (elem1) => {
-                              Data(elem1)
-                            });
-
-
 
                              //$.post("/outofbounds", {IsHere: gary, CoL: num1, ROW: num2, index: gary.Status.id},Data);
 
