@@ -182,6 +182,12 @@ theCanvas.addEventListener("click",onMouseClick,false);
 
   socket.on('roomUsers2', (elem1) => {
     numplayers = elem1
+
+    if(numplayers < 2)
+    {
+      alert("Sorry. A Player has Left. You Will Be Sent Back To The Main Screen.")
+      window.location = '../index.html';
+    }
 });
 
 ///////////////////////////////////////////////////////
