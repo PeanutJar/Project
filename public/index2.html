@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<!--<body style="background-color:green;">-->
+<body style="min-width:500px;min-height:500px;">
+<head>
+<meta charset="UTF-8">
+<title>Canvas Basic Game Template</title>
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.1.1.min.js">
+</script>  
+<script type="text/javascript">
+
+
+
+
+////////////////////////////////////////////////////////
+
+</script>
+
+</head>
+<div class="chat-messages" style="position:absolute;top:14%;left:2%;z-index:5;"></div>
+
+<div id="Turn" style="position:absolute;top:10%;left:2%;z-index:4;">Your turn</div>
+
+<div id="Misc" style="position:absolute;top:13%;left:2%;z-index:3;">Game will start when there are 2 players</div>
+
+<a id="leave-btn" class="btn" style="position:absolute;z-index:2;">Leave Room</a> 
+
+<body>
+<canvas id="canvas" width="1000" height="1000" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;">
+ Your browser does not support HTML5 Canvas.
+</canvas> 
+
+</body>
+</html>
+
+<script>
+  $("#canvas").attr("width","" + innerWidth)
+  $("#canvas").attr("height","" + innerHeight)
+
+</script>
+<script
+      src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"
+      integrity="sha256-TDxXjkAUay70ae/QJBEpGKkpVslXaHHayklIVglFRT4="
+      crossorigin="anonymous"
+    ></script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.1.1.min.js">
+</script>
+
+<script src="js/main.js"></script>
+<script src="js/index.js"></script>  
