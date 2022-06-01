@@ -71,6 +71,8 @@ theCanvas.addEventListener("click",onMouseClick,false);
 
    let Indentification = 0
 
+   let TurnColor = '#000000'
+
 
    gameLoop();
 
@@ -113,7 +115,8 @@ theCanvas.addEventListener("click",onMouseClick,false);
         {
           document.getElementById('Turn').innerHTML = "Opponent's Turn"
         }
-        document.getElementById('Misc').innerHTML = "Green goes! 1"
+        //document.getElementById('Misc').innerHTML = "Green goes! 1"
+        TurnColor = '#00FF00';
       }
       else if(!Person1turn)
       {
@@ -125,7 +128,8 @@ theCanvas.addEventListener("click",onMouseClick,false);
         {
           document.getElementById('Turn').innerHTML = "Opponent's Turn"
         }
-        document.getElementById('Misc').innerHTML = "White goes! 1"
+        //document.getElementById('Misc').innerHTML = "White goes! 1"
+        TurnColor = '#FFFFFF'
       }
    });
 
@@ -582,11 +586,36 @@ theCanvas.addEventListener("click",onMouseClick,false);
     }
 
    // draw background
-   context.fillStyle = '#808080';
+   context.fillStyle = '#7b7fb9';
+   //context.fillStyle = '#FFFFFF';
+   //context.fillStyle = '#00FF00';
    //context.fillRect(xval, yval, 480, 480);
    context.fillRect(0, 0, innerWidth, innerHeight);
 
 
+   let XVAL2 = innerWidth * (1/3)
+   let YVAL2 = innerHeight * (1/9)
+   let XSCALE2 = innerWidth*.009
+   let YSCALE2 = innerHeight*.009
+   let SCALE2 = 0
+   if(XSCALE2 >= YSCALE2)
+   {
+     SCALE2 = YSCALE2
+     SCALE2 = SCALE2*9
+     let x2 = XVAL2 - (SCALE2/2)
+     let y2 = YVAL2 - (SCALE2/2)
+     drawRect(x2,y2,0,SCALE2,SCALE2,TurnColor)
+   }
+   else if(YSCALE2 > XSCALE2)
+   {
+     SCALE2 = XSCALE2
+     SCALE2 = SCALE2*9
+     let x2 = XVAL2 - (SCALE2/2)
+     let y2 = YVAL2 - (SCALE2/2)
+     drawRect(x2,y2,0,SCALE2,SCALE2,TurnColor)
+   }
+   //context.fillStyle = TurnColor;
+   //context.fillRect(XVAL2, YVAL2, SCALE2, SCALE2);
 
 
    //Text output

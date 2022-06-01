@@ -1,6 +1,6 @@
 var socket = io()
 
-const chatMessages = document.querySelector('.chat-messages');
+//const chatMessages = document.querySelector('.chat-messages');
 const roomName = document.getElementById('room-name');
 const userList = document.getElementById('users');
 
@@ -34,7 +34,7 @@ socket.on('message', (message) => {
   outputMessage(message);
 
   // Scroll down
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  //chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
 // Output message to DOM

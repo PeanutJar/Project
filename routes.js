@@ -189,7 +189,7 @@ socket.emit('welcome', { identifier: 1 });
 
 
 
-
+/*
     // Welcome current user
     socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
 
@@ -200,20 +200,26 @@ socket.emit('welcome', { identifier: 1 });
         'message',
         formatMessage(botName, `${user.username} has joined the chat`)
       );
+      
 
     // Send users and room info
     io.to(user.room).emit('roomUsers', {
       room: user.room,
       users: getRoomUsers(user.room)
     });
+*/
+
+
   });
 
   // Listen for chatMessage
+  /*
   socket.on('chatMessage', msg => {
     const user = getCurrentUser(socket.id);
 
     io.to(user.room).emit('message', formatMessage(user.username, msg));
   });
+  */
 
   // Runs when client disconnects
   socket.on('disconnect', () => {
@@ -221,10 +227,13 @@ socket.emit('welcome', { identifier: 1 });
 
 
     if (user) {
+
+      /*
       io.to(user.room).emit(
         'message',
         formatMessage(botName, `${user.username} has left the chat`)
       );
+      */
 
       // Send users and room info
       /*
